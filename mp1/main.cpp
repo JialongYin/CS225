@@ -15,6 +15,6 @@ int main(int argc, char *argv[]) {
     std::cout << "Rotating `in.png` as `out.png`" << std::endl;
     rotate("in.png", "out.png");
   }
-  
+
   return 0;
 }
