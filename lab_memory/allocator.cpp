@@ -47,14 +47,15 @@ void Allocator::loadRooms(const string& file)
 {
     // Read in rooms
     fileio::loadRooms(file);
+    roomCount = fileio::getNumRooms();
     rooms = new Room[roomCount];
-
     totalCapacity = 0;
     int i = 0;
     while (fileio::areMoreRooms()) {
-        i++; 
+
         rooms[i] = fileio::nextRoom();
         totalCapacity += rooms[i].capacity;
+        i++;
     }
 }
 
@@ -113,11 +114,19 @@ Room* Allocator::largestOpening()
 {
     int index = 0;
     int max_remaining = 0;
-    for (int i = 0; i < roomCount; i++) {
+    for (int i = 0; i < fileio::getNumRooms(); i++) {
         if (rooms[i].spaceRemaining() > max_remaining) {
             index = i;
             max_remaining = rooms[i].spaceRemaining();
         }
     }
     return &rooms[index];
+}
+
+Allocator::~Allocator()
+{
+    delete [] alpha;
+    alpha = NULL;
+    delete [] rooms;
+    rooms = NULL;
 }
