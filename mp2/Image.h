@@ -8,7 +8,16 @@
 using namespace cs225;
 
 class Image : public PNG{
+private:
+  int x_;
+  int y_;
+
 public:
+  void setX(int x){x_ = x;}
+  void setY(int y){y_ = y;}
+  int getX(){return x_;}
+  int getY(){return y_;}
+  
   void lighten(){
     for (unsigned x = 0; x < width(); x++) {
       for (unsigned y = 0; y < height(); y++) {

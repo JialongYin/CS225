@@ -1,4 +1,4 @@
-/*
+
 #include "../cs225/catch/catch.hpp"
 #include "../Image.h"
 #include "../cs225/PNG.h"
@@ -16,6 +16,8 @@ TEST_CASE("A basic StickerSheet works", "[weight=5][part=2]") {
 
   Image expected;
   expected.readFromFile("tests/expected.png");
+
+  sheet.render().writeToFile("test1.png");
 
   REQUIRE( sheet.render() == expected );
 }
@@ -255,4 +257,3 @@ TEST_CASE("StickerSheet's assignment operator makes an independent copy", "[weig
   REQUIRE( s1.render() == expected2 );
   REQUIRE( s2.render() == expected );
 }
-*/
