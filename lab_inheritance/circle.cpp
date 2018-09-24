@@ -17,9 +17,10 @@
 const double PI = 3.141592;
 
 Circle::Circle(const Vector2& pcenter, const HSLAPixel& pcolor, int pradius)
-    : radius_(pradius)
+    : Shape(pcenter, pcolor)
 {
     /* Nothing.  See initialization list. */
+    radius_ = pradius;
 }
 
 int Circle::area() const
