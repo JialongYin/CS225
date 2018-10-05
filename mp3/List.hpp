@@ -3,7 +3,8 @@
  * Doubly Linked List (MP 3).
  */
 
-
+ #include <algorithm>
+ using namespace std;
 /**
  * Returns a ListIterator with a position at the beginning of
  * the List.
@@ -11,7 +12,7 @@
 template <typename T>
 typename List<T>::ListIterator List<T>::begin() const {
   // @TODO: graded in MP3.1
-  return List<T>::ListIterator(nullptr);
+  return List<T>::ListIterator(head_);
 }
 
 /**
@@ -20,7 +21,7 @@ typename List<T>::ListIterator List<T>::begin() const {
 template <typename T>
 typename List<T>::ListIterator List<T>::end() const {
   // @TODO: graded in MP3.1
-  return List<T>::ListIterator(nullptr);
+  return List<T>::ListIterator(tail_->next);
 }
 
 /**
@@ -31,7 +32,6 @@ template <typename T>
 List<T>::~List() {
   /// @todo Graded in MP3.1
   _destroy();
-
 }
 
 /**
@@ -41,13 +41,11 @@ List<T>::~List() {
 template <typename T>
 void List<T>::_destroy() {
   /// @todo Graded in MP3.1
-  if (head_ != NULL){
     ListNode *cur, *temp;
     for (cur = head_; cur != NULL; cur = temp){
       temp = cur->next;
       delete cur;
     }
-  }
 }
 
 /**
@@ -120,44 +118,39 @@ void List<T>::reverse() {
 template <typename T>
 void List<T>::reverse(ListNode *& startPoint, ListNode *& endPoint) {
   /// @todo Graded in MP3.1
+  if (!startPoint || !endPoint)
+    return;
+  if (startPoint == endPoint)
+    return;
+
   ListNode *temp, *cur;
   for (cur = startPoint; cur != endPoint; cur = temp){
     temp = cur->next;
-    cur->next = cur->prev;
-    cur->prev = temp;
+    swap(cur->next, cur->prev);
   }
-  temp = cur->next;
-  cur->next = cur->prev;
-  cur->prev = temp;
+  swap(cur->next, cur->prev);
 
   ListNode *tempp, *tempn;
   tempn = startPoint->next;
   tempp = endPoint->prev;
-  startPoint->next = tempp;
-  endPoint->prev = tempn;
-  if (tempn != NULL and tempp != NULL){
-    tempn->next = endPoint;
-    tempp->prev = startPoint;
+  swap(endPoint->prev, startPoint->next);
 
-    temp = endPoint;
-    endPoint = startPoint;
-    startPoint = temp;
-  }else if (tempn == NULL and tempp != NULL){
-    tempp->prev = startPoint;
-    temp = startPoint; //
-    startPoint = endPoint;
-    endPoint = temp; //
-  }else if (tempn != NULL and tempp == NULL){
-    tempn->next = endPoint;
-    temp = endPoint; //
-    endPoint = startPoint;
-    startPoint = temp; //
-  }else {
-    temp = endPoint;
-    endPoint = startPoint;
-    startPoint = temp;
+  swap(endPoint, startPoint);
+
+  if (tempn != NULL){
+    tempn->next = startPoint;
+    // cout << head_->data << endl;
+  } else {
+    head_ = startPoint;
+    // cout << head_->data << endl;
   }
-
+  if (tempp != NULL){
+    tempp->prev = endPoint;
+    // cout << tail_->data << endl;
+  } else {
+    tail_ = endPoint;
+    // cout << tail_->data << endl;
+  }
 }
 
 /**
@@ -182,7 +175,8 @@ void List<T>::reverseNth(int n) {
       tempt = tail_;
       reverse(temph, tempt);
     }else{
-      reverse(temph, tempt->prev);
+      ListNode *temp = tempt->prev;
+      reverse(temph, temp);
     }
     temph = tempt;
   }
@@ -201,8 +195,9 @@ template <typename T>
 void List<T>::waterfall() {
   /// @todo Graded in MP3.1
   ListNode *curr, *temp, *tempp, *tempn;
-  for (curr = head_; curr != NULL; curr = curr->next){
+  for (curr = head_; curr->next != tail_; curr = curr->next){
     temp = curr->next;
+    // cout << head_->data <<endl;
     if (temp != NULL){
       tempn = temp->next;
       temp->next = NULL;
@@ -211,7 +206,10 @@ void List<T>::waterfall() {
       tail_ = temp;
       curr->next = tempn;
       tempn->prev = tempp;
+      (temp->prev)->next = temp;
+      // cout << curr->data <<endl;
     }
+
   }
 
 }

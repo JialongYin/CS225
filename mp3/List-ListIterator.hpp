@@ -41,9 +41,7 @@ class ListIterator : public std::iterator<std::bidirectional_iterator_tag, T> {
 
     bool operator!=(const ListIterator& rhs) {
         // @TODO: graded in MP3.1
-        if (rhs.position_ != this->position_){
-          return false;
-        }else return true;
+        return rhs.position_ != position_;
     }
 
     const T& operator*() {
