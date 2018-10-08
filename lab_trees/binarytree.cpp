@@ -245,7 +245,8 @@ int BinaryTree<T>::sumDistancesHelper(const Node* node, int n) const
     // your code here
     if (node == NULL) return n;
     if (node->left == NULL && node->right == NULL) return n;
-    n = n + sumDistancesHelper(node->left, n+1);
-    n = n + sumDistancesHelper(node->right, n+1);
-    return n;
+    int sum;
+    sum = n + sumDistancesHelper(node->left, n+1);
+    sum = sum + sumDistancesHelper(node->right, n+1);
+    return sum;
 }
