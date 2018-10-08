@@ -272,7 +272,12 @@ List<T> List<T>::split(int splitPoint) {
 template <typename T>
 typename List<T>::ListNode * List<T>::split(ListNode * start, int splitPoint) {
   /// @todo Graded in MP3.2
-  return NULL;
+  for (int i = 0; i < splitPoint;i ++){
+    start = start->next;
+  }
+  start->prev->next = NULL;
+  start->prev = NULL;
+  return start;
 }
 
 /**
@@ -313,7 +318,41 @@ void List<T>::mergeWith(List<T> & otherList) {
 template <typename T>
 typename List<T>::ListNode * List<T>::merge(ListNode * first, ListNode* second) {
   /// @todo Graded in MP3.2
-  return NULL;
+  ListNode *curr, *cur, *temp;
+  int i = 0;
+  for (curr = second; curr != NULL; curr = second){
+    for (cur = first; cur != NULL; cur = cur->next){
+      cout << "cur->data" << cur->data << endl;
+      cout << "curr->data" << curr->data << endl;
+      temp = cur;
+      if (curr->data < cur->data){
+        second = curr->next;
+        second->prev = NULL;
+        curr->next = cur;
+        curr->prev = cur->prev;
+        if (cur->prev != NULL) {
+          cur->prev->next = curr;
+        }else {
+          first = curr;
+        }
+        cur->prev = curr;
+        i = 1;
+        cout << "i " << i << endl;
+      }
+      if (i == 1) break;
+    }
+    if (i == 0){
+      second = curr->next;
+      curr->prev = temp;
+      temp->next = curr;
+      curr->next = NULL;
+      if (second != NULL){
+        second->prev = NULL;
+      }
+    }
+    i = 0;
+  }
+  return first;
 }
 
 /**

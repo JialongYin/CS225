@@ -3,21 +3,19 @@
 using namespace std;
 
 int main() {
-  List<int> list;
-  list.insertFront(8);
-  list.insertFront(7);
-  list.insertFront(6);
-  list.insertFront(5);
-  list.insertFront(4);
-  list.insertFront(3);
-  list.insertFront(2);
-  list.insertFront(1);
-  cout << "original list" << list <<endl;
-  // list.reverse();
-  list.reverseNth(5);
-  // list.waterfall();
-  cout << "new list" << list << endl;
-  //cout << list.size() << endl;
+  List<int> list1, list2;
+  list1.insertFront(10);
+  list1.insertFront(6);
+  list1.insertFront(4);
+  list1.insertFront(3);
+  list1.insertFront(1);
+  list2.insertFront(9);
+  list2.insertFront(7);
+  list2.insertFront(2);
+  cout << "original list1" << list1 <<endl;
+  cout << "original list2" << list2 <<endl;
+  list1.mergeWith(list2);
+  cout << "new list" << list1 << endl;
 
   return 0;
 }

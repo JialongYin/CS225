@@ -89,7 +89,7 @@ class BinaryTree
         /**
          * @return The root of the binary tree
          */
-        Node* getRoot() const;  
+        Node* getRoot() const;
 
         /**
          * This lab deals with the following six helper functions:
@@ -187,9 +187,12 @@ class BinaryTree
          */
         void printLeftToRight(const Node* subRoot) const;
 
-
-
-
+        void mirror(Node* subRoot);
+        bool isOrderedIterative(typename BinaryTree<T>::Node* root) const;
+        bool isOrderedRecursive(const Node* subRoot) const;
+        typename BinaryTree<T>::Node * myHelperLeft(Node * node) const;
+        typename BinaryTree<T>::Node * myHelperRight(Node * node) const;
+        void getPathsHelper(vector<vector<T> > &paths, Node* root, vector<T> path) const;
         /**
          * Private helper function for the public insert function.
          * @param node The current node in the recursion
