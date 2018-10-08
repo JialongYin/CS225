@@ -318,18 +318,24 @@ void List<T>::mergeWith(List<T> & otherList) {
 template <typename T>
 typename List<T>::ListNode * List<T>::merge(ListNode * first, ListNode* second) {
   /// @todo Graded in MP3.2
-  ListNode *curr, *cur, *temp;
+  ListNode *curr, *cur, *temp = first;
   int i = 0;
+  if (first == NULL) return second;
   for (curr = second; curr != NULL; curr = second){
-    for (cur = first; cur != NULL; cur = cur->next){
-      cout << "cur->data" << cur->data << endl;
-      cout << "curr->data" << curr->data << endl;
+    // second = curr->next; //
+    for (cur = temp; cur != NULL; cur = cur->next){
+      // cout << "Segmentation fault not here" << endl;
+      // cout << "cur->data " << cur->data << endl;
+      // cout << "curr->data " << curr->data << endl;
       temp = cur;
       if (curr->data < cur->data){
         second = curr->next;
-        second->prev = NULL;
+        if (second != NULL){
+          second->prev = NULL;
+        }
         curr->next = cur;
         curr->prev = cur->prev;
+        // cout << "Segmentation fault not here" << endl;
         if (cur->prev != NULL) {
           cur->prev->next = curr;
         }else {
@@ -337,7 +343,7 @@ typename List<T>::ListNode * List<T>::merge(ListNode * first, ListNode* second) 
         }
         cur->prev = curr;
         i = 1;
-        cout << "i " << i << endl;
+        // cout << "i " << i << endl;
       }
       if (i == 1) break;
     }
@@ -351,7 +357,10 @@ typename List<T>::ListNode * List<T>::merge(ListNode * first, ListNode* second) 
       }
     }
     i = 0;
+    // cout << "curr->data " << curr->data << endl;
+    // cout << "infinite loop here" << endl;
   }
+  // cout << "infinite loop not here" << endl;
   return first;
 }
 
@@ -380,5 +389,18 @@ void List<T>::sort() {
 template <typename T>
 typename List<T>::ListNode* List<T>::mergesort(ListNode * start, int chainLength) {
   /// @todo Graded in MP3.2
-  return NULL;
+  if (chainLength == 1) return start;
+  if (chainLength == 2) {
+    ListNode *temp = start->next;
+    if (start->data < temp->data) return start;
+    else {
+      swap(temp->prev, temp->next);
+      swap(start->prev, start->next);
+      return temp;
+    }
+  }
+  ListNode *secondhead = split(start, chainLength/2);
+  ListNode *fisrtMerge = mergesort(start, chainLength/2);
+  ListNode *secondMerge = mergesort(secondhead, (chainLength - chainLength/2));
+  return merge(fisrtMerge, secondMerge);
 }
