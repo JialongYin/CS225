@@ -193,6 +193,7 @@ class BinaryTree
         typename BinaryTree<T>::Node * myHelperLeft(Node * node) const;
         typename BinaryTree<T>::Node * myHelperRight(Node * node) const;
         void getPathsHelper(vector<vector<T> > &paths, Node* root, vector<T> path) const;
+        int sumDistancesHelper(const Node* node, int n) const;
         /**
          * Private helper function for the public insert function.
          * @param node The current node in the recursion
