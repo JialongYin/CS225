@@ -5,6 +5,7 @@
 #include <queue>
 #include <stack>
 #include <vector>
+#include <iostream>
 
 #include "../cs225/PNG.h"
 #include "../Point.h"
@@ -27,6 +28,7 @@ DFS::DFS(const PNG & png, const Point & start, double tolerance) {
   start_ = start;
   tolerance_ = tolerance;
   png_ = png;
+  neighbors.push(start_);
 }
 
 /**
@@ -34,7 +36,7 @@ DFS::DFS(const PNG & png, const Point & start, double tolerance) {
  */
 ImageTraversal::Iterator DFS::begin() {
   /** @todo [Part 1] */
-  return ImageTraversal::Iterator(start_);
+  return ImageTraversal::Iterator(start_, this, tolerance_, png_);
 }
 
 /**
@@ -42,7 +44,7 @@ ImageTraversal::Iterator DFS::begin() {
  */
 ImageTraversal::Iterator DFS::end() {
   /** @todo [Part 1] */
-  return ImageTraversal::Iterator(tail_->next);
+  return ImageTraversal::Iterator();
 }
 
 /**
@@ -52,7 +54,6 @@ void DFS::add(const Point & point) {
   /** @todo [Part 1] */
   neighbors.push(point);
 }
-
 /**
  * Removes and returns the current Point in the traversal.
  */

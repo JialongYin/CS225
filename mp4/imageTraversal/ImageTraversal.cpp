@@ -1,10 +1,12 @@
 #include <cmath>
 #include <iterator>
 #include <iostream>
+#include <vector>
 
 #include "../cs225/HSLAPixel.h"
 #include "../cs225/PNG.h"
 #include "../Point.h"
+
 
 #include "ImageTraversal.h"
 
@@ -28,26 +30,78 @@ double ImageTraversal::calculateDelta(const HSLAPixel & p1, const HSLAPixel & p2
   return sqrt( (h*h) + (s*s) + (l*l) );
 }
 
+double ImageTraversal::Iterator::calculate(Point point){
+  HSLAPixel p1 = png_.getPixel(point.x, point.y);
+  HSLAPixel p2 = png_.getPixel(start_.x, start_.y);
+  return calculateDelta(p1, p2);
+}
+
 /**
  * Default iterator constructor.
  */
 ImageTraversal::Iterator::Iterator() {
   /** @todo [Part 1] */
-  position_ = NULL;
+  // current_ = Point(0,0);
+  imgtrav_ = NULL;
 }
 
-ImageTraversal::Iterator::Iterator(Point *start) {
+ImageTraversal::Iterator::Iterator(Point start, ImageTraversal* imgtrav, double tolerance, PNG png) {
   /** @todo [Part 1] */
-  position_ = start;
+  start_ = start;
+  current_ = start;
+  imgtrav_ = imgtrav;
+  tolerance_ = tolerance;
+  png_ = png;
+  vector<vector<bool>> visited_(png_.width(), std::vector<bool>(png_.height()));
+  for (unsigned i = 0; i < png_.width(); i++) {
+    for (unsigned j = 0; j < png_.height(); j++) {
+      visited_[i][j] = false;
+    }
+  }
+
+  visited = visited_;
+  visited[start.x][start.y] = true;
+  neighborsAdd(start);
 }
+
+void ImageTraversal::Iterator::neighborsAdd(Point point){
+  Point right((point.x)+1, point.y);
+  if ((point.x)+1 < png_.width())
+  imgtrav_->add(right);
+
+  Point below(point.x, (point.y)+1);
+  if ((point.y)+1 < png_.height())
+  imgtrav_->add(below);
+
+
+  Point left((point.x)-1, point.y);
+  if ((int)(point.x)-1 >= 0)
+  imgtrav_->add(left);
+
+
+  Point above(point.x, (point.y)-1);
+  if ((int)(point.y)-1 >= 0)
+  imgtrav_->add(above);
+}
+
 /**
  * Iterator increment opreator.
  *
  * Advances the traversal of the image.
  */
-ImageTraversal::Iterator & ImageTraversal::Iterator::operator++() {
+ImageTraversal::Iterator &ImageTraversal::Iterator::operator++() {
   /** @todo [Part 1] */
-  position_ = position_->next;
+  Point p = imgtrav_->pop();
+  double d = calculate(p);
+  while (!imgtrav_->empty() && (visited[p.x][p.y] == true || d >= tolerance_)){
+    p = imgtrav_->pop();
+    d = calculate(p);
+  }
+  if (!imgtrav_->empty()){
+    current_ = p;
+    visited[p.x][p.y] = true;
+    neighborsAdd(p);
+  }
   return *this;
 }
 
@@ -58,7 +112,7 @@ ImageTraversal::Iterator & ImageTraversal::Iterator::operator++() {
  */
 Point ImageTraversal::Iterator::operator*() {
   /** @todo [Part 1] */
-  return *position;
+  return current_;
 }
 
 /**
@@ -68,5 +122,16 @@ Point ImageTraversal::Iterator::operator*() {
  */
 bool ImageTraversal::Iterator::operator!=(const ImageTraversal::Iterator &other) {
   /** @todo [Part 1] */
-  return false;
+  bool thisEmpty = false;
+  bool otherEmpty = false;
+
+  if (imgtrav_ == NULL) { thisEmpty = true; }
+  if (other.imgtrav_ == NULL) { otherEmpty = true; }
+
+  if (!thisEmpty)  { thisEmpty = imgtrav_->empty(); }
+  if (!otherEmpty) { otherEmpty = other.imgtrav_->empty(); }
+
+  if (thisEmpty && otherEmpty) return false; // both empty then the traversals are equal, return true
+  else if ((!thisEmpty)&&(!otherEmpty)) return (imgtrav_ != other.imgtrav_); //both not empty then compare the traversals
+  else return true; // one is empty while the other is not, return true
 }

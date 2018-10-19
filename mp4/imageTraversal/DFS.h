@@ -8,6 +8,7 @@
 #include <cmath>
 #include <list>
 #include <stack>
+#include <set>
 
 #include "../cs225/PNG.h"
 #include "../Point.h"
@@ -40,4 +41,5 @@ private:
   double tolerance_;
   PNG png_;
   stack<Point> neighbors;
+  set<Point> visited;
 };

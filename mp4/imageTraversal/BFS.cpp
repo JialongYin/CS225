@@ -5,6 +5,7 @@
 #include <queue>
 #include <stack>
 #include <vector>
+#include <iostream>
 
 #include "../cs225/PNG.h"
 #include "../Point.h"
@@ -13,6 +14,7 @@
 #include "BFS.h"
 
 using namespace cs225;
+using namespace std;
 
 /**
  * Initializes a breadth-first ImageTraversal on a given `png` image,
@@ -27,6 +29,7 @@ BFS::BFS(const PNG & png, const Point & start, double tolerance) {
   start_ = start;
   tolerance_ = tolerance;
   png_ = png;
+  neighbors.push(start_);
 }
 
 /**
@@ -34,7 +37,7 @@ BFS::BFS(const PNG & png, const Point & start, double tolerance) {
  */
 ImageTraversal::Iterator BFS::begin() {
   /** @todo [Part 1] */
-  return ImageTraversal::Iterator();
+  return ImageTraversal::Iterator(start_, this, tolerance_, png_);
 }
 
 /**
@@ -45,12 +48,46 @@ ImageTraversal::Iterator BFS::end() {
   return ImageTraversal::Iterator();
 }
 
+void print_queue(std::queue<Point> q);
 /**
  * Adds a Point for the traversal to visit at some point in the future.
  */
 void BFS::add(const Point & point) {
   /** @todo [Part 1] */
-  neighbors.push(point);
+
+    neighbors.push(point);
+
+
+  // std::cout << "topPoint " << neighbors.front() << std::endl;
+  // std::cout << "count topPoint in visited " << visited.count(neighbors.front()) << std::endl;
+
+  // std::cout << "peekPoint " << neighbors.front() << std::endl;
+
+  // std::cout << "count peekPoint in visited " << visited.count(neighbors.front()) << std::endl;
+
+//   Point pointTemp(1, 2);
+//   // std::cout << "pointTemp " << pointTemp << std::endl;
+//   std::cout << "count pointTemp in visited " << visited.count(pointTemp) << std::endl;
+//
+//   std::cout << "visited " << endl;
+//   for (auto elem : visited){
+// 	std::cout << elem << " ";
+//   }
+//   std::cout << endl;
+//
+//   std::cout << "neighbors " << endl;
+//   print_queue(neighbors);
+//   std::cout << std::endl;
+// }
+//
+// void print_queue(std::queue<Point> q)
+// {
+//   while (!q.empty())
+//   {
+//     std::cout << q.front() << " ";
+//     q.pop();
+//   }
+//   std::cout << std::endl;
 }
 
 /**
@@ -60,7 +97,7 @@ Point BFS::pop() {
   /** @todo [Part 1] */
   Point topPoint = neighbors.front();
   neighbors.pop();
-  return topPoint;;
+  return topPoint;
 }
 
 /**

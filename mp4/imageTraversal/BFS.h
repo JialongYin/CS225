@@ -8,6 +8,7 @@
 #include <cmath>
 #include <list>
 #include <queue>
+#include <set>
 
 #include "../cs225/PNG.h"
 #include "../Point.h"
