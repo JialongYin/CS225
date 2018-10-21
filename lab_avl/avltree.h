@@ -19,6 +19,7 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <cmath>
 
 using namespace std;
 
@@ -152,6 +153,8 @@ class AVLTree
      * @param key The key to remove
      */
     void remove(Node*& node, const K& key);
+
+    Node*& removeHelper(Node*& subtree);
 
     /**
      * Finds a value (by key) in the AVL tree.
