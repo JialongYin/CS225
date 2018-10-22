@@ -20,12 +20,27 @@ int main() {
   // - The code below assumes you have an Animation called `animation`
   // - The code provided below produces the `myFloodFill.png` file you must
   //   submit Part 3 of this assignment -- uncomment it when you're ready.
-  
-  /*
+  PNG png;
+  png.readFromFile("tests/i.png");
+  FloodFilledImage image(png);
+  MyColorPicker myclr(0.05);
+
+  DFS dfs(png, Point(100, 100), 0.05);
+  image.addFloodFill( dfs, myclr );
+
+  BFS bfs(png, Point(100, 100), 0.05);
+  image.addFloodFill( bfs, myclr );
+
+  Animation animation = image.animate(2000);
+
+
+
+
+
   PNG lastFrame = animation.getFrame( animation.frameCount() - 1 );
   lastFrame.writeToFile("myFloodFill.png");
   animation.write("myFloodFill.gif");
-  */
+
 
 
   return 0;
