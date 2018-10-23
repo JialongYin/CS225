@@ -31,7 +31,7 @@ int main() {
   BFS bfs(png, Point(100, 100), 0.05);
   image.addFloodFill( bfs, myclr );
 
-  Animation animation = image.animate(2000);
+  Animation animation = image.animate(10000);
 
 
 
