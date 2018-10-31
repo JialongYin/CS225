@@ -259,6 +259,13 @@ class KDTree
     /**
      * @todo Add your helper functions here.
      */
+    KDTree<Dim>::KDTreeNode* KDTreeHelper(vector<Point<Dim>> newPoints, int splitDim, int left, int right);
+    Point<Dim> KDTreeSelect(vector<Point<Dim>>& newPoints, int splitDim, int left, int right, int k);
+    int KDTreePartition(vector<Point<Dim>>& newPoints, int splitDim, int left, int right, int pivotIndex);
+
+    KDTreeNode* KDTreeCopyHelper(KDTreeNode* root);
+
+    void KDTreeDstHelper(KDTreeNode* root);
 };
 
 #include "kdtree.hpp"
