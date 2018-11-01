@@ -201,7 +201,6 @@ Point<Dim> KDTree<Dim>::findNearestNeighbor(const Point<Dim>& query) const
 template <int Dim>
 Point<Dim> KDTree<Dim>::findNearestNeighborHelper(Point<Dim> query, KDTreeNode* root, int splitDim) const
 {
-  cout << root->point << " ";
   if (root == NULL) return Point<Dim>();
   if (root->left == NULL && root->right == NULL) {
     // cout << root->point << " ";
@@ -262,71 +261,3 @@ double KDTree<Dim>::curBestRadius(const Point<Dim>& target, const Point<Dim>& cu
   }
   return radius;
 }
-
-// template <int Dim>
-// Point<Dim> KDTree<Dim>::findNearestNeighborHelper(Point<Dim> query, KDTreeNode* root)
-// {
-//     /**
-//      * @todo Implement this function!
-//      */
-//     vector<tuple<KDTreeNode*, int>> dfs;
-//     dfs = traverse(query, root, 0, dfs);
-//     tuple<KDTreeNode*, int> curBest = dfs.back();
-//     dfs.pop_back();
-//     double radius = curBestRadius(query, curBest[0]->point);
-//     tuple<KDTreeNode*, int> potential;
-//     while (!dfs.empty()) {
-//       potential = dfs.back();
-//       dfs.pop_back();
-//
-//       if (shouldReplace(query, curBest[0]->point, potential[0]->point)) {
-//         curBest = potential;
-//         radius = curBestRadius(query, curBest[0]->point);
-//       }
-//
-//       if ((query[potential[1]] - potential[0]->point[potential[1]]) * (query[potential[1]] - potential[0]->point[potential[1]]) < radius){
-//         if (smallerDimVal(query, potential[0]->point, potential[1]))
-//           dfs = traverse(query, potential[0]->right, potential[1], dfs);
-//         else
-//           dfs = traverse(query, potential[0]->left, potential[1], dfs);
-//       }
-//     }
-//
-//     return curBest;
-// }
-//
-// template <int Dim>
-// vector<tuple<KDTreeNode*, int>> KDTree<Dim>::traverse(Point<Dim> query, KDTreeNode* root, int splitDim, vector<tuple<KDTreeNode*, int>> dfs)
-// {
-//     /**
-//      * @todo Implement this function!
-//      */
-//     if (root == NULL) return dfs;
-//     if (root->left == NULL && root->right == NULL) {
-//       tuple<KDTreeNode*, int> node = make_tuple(root, splitDim)
-//       dfs.push_back(node);
-//       return dfs;
-//     }
-//     if (smallerDimVal(query, root->point, splitDim)) {
-//       if (root->left != NULL){
-//         tuple<KDTreeNode*, int> node = make_tuple(root, splitDim)
-//         dfs.push_back(node);
-//         return traverse(query, root->left, (splitDim + 1) % Dim, dfs);
-//       } else {
-//         tuple<KDTreeNode*, int> node = make_tuple(root, splitDim)
-//         dfs.push_back(node);
-//         return dfs;
-//       }
-//     }
-//     else {
-//       if (root->right != NULL){
-//         tuple<KDTreeNode*, int> node = make_tuple(root, splitDim)
-//         dfs.push_back(node);
-//         return traverse(query, root->right, (splitDim + 1) % Dim, dfs);
-//       } else {
-//         tuple<KDTreeNode*, int> node = make_tuple(root, splitDim)
-//         dfs.push_back(node);
-//         return dfs;
-//       }
-//     }
-// }
