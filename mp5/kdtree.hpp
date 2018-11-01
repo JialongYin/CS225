@@ -6,6 +6,7 @@
 #include <utility>
 #include <algorithm>
 #include<tuple>
+#include <iostream>
 
 using namespace std;
 
@@ -194,8 +195,72 @@ Point<Dim> KDTree<Dim>::findNearestNeighbor(const Point<Dim>& query) const
     /**
      * @todo Implement this function!
      */
-    // return findNearestNeighborHelper(query, root);
-    return Point<Dim>();
+    return findNearestNeighborHelper(query, root, 0);
+}
+
+template <int Dim>
+Point<Dim> KDTree<Dim>::findNearestNeighborHelper(Point<Dim> query, KDTreeNode* root, int splitDim) const
+{
+  cout << root->point << " ";
+  if (root == NULL) return Point<Dim>();
+  if (root->left == NULL && root->right == NULL) {
+    // cout << root->point << " ";
+    return root->point;
+  }
+  if (smallerDimVal(query, root->point, splitDim)) {
+    if (root->left != NULL){
+      Point<Dim> currBest = findNearestNeighborHelper(query, root->left, (splitDim + 1) % Dim);
+      if (shouldReplace(query, currBest, root->point)) {
+        currBest = root->point;
+      }
+      double radius = curBestRadius(query, currBest);
+      if ((query[splitDim] - root->point[splitDim]) * (query[splitDim] - root->point[splitDim]) <= radius){
+        if (root->right != NULL) {
+          Point<Dim> potential = findNearestNeighborHelper(query, root->right, (splitDim + 1) % Dim);
+          if (shouldReplace(query, currBest, potential)) {
+            currBest = potential;
+          }
+        }
+      }
+      // cout << currBest << " ";
+      return currBest;
+    } else {
+      // cout << root->point << " ";
+      return root->point;
+    }
+  }
+  else {
+    if (root->right != NULL){
+      Point<Dim> currBest = findNearestNeighborHelper(query, root->right, (splitDim + 1) % Dim);
+      if (shouldReplace(query, currBest, root->point)) {
+        currBest = root->point;
+      }
+      double radius = curBestRadius(query, currBest);
+      if ((query[splitDim] - root->point[splitDim]) * (query[splitDim] - root->point[splitDim]) <= radius){
+        if (root->left != NULL){
+          Point<Dim> potential = findNearestNeighborHelper(query, root->left, (splitDim + 1) % Dim);
+          if (shouldReplace(query, currBest, potential)) {
+            currBest = potential;
+          }
+        }
+      }
+      // cout << currBest << " ";
+      return currBest;
+    } else {
+      // cout << root->point << " ";
+      return root->point;
+    }
+  }
+}
+
+template <int Dim>
+double KDTree<Dim>::curBestRadius(const Point<Dim>& target, const Point<Dim>& currentBest) const
+{
+  double radius = 0;
+  for (int i = 0; i < Dim; ++i){
+    radius = radius + (currentBest[i] - target[i]) * (currentBest[i] - target[i]);
+  }
+  return radius;
 }
 
 // template <int Dim>
@@ -205,73 +270,62 @@ Point<Dim> KDTree<Dim>::findNearestNeighbor(const Point<Dim>& query) const
 //      * @todo Implement this function!
 //      */
 //     vector<tuple<KDTreeNode*, int>> dfs;
-//     dfs = findNearestNeighborTraverse(query, root, 0, dfs);
+//     dfs = traverse(query, root, 0, dfs);
 //     tuple<KDTreeNode*, int> curBest = dfs.back();
 //     dfs.pop_back();
-//     double radius = curBestRadius(query, curBest);
+//     double radius = curBestRadius(query, curBest[0]->point);
 //     tuple<KDTreeNode*, int> potential;
-//     tuple<KDTreeNode*, int> predecessor;
 //     while (!dfs.empty()) {
 //       potential = dfs.back();
+//       dfs.pop_back();
 //
 //       if (shouldReplace(query, curBest[0]->point, potential[0]->point)) {
-//         // if (curBest[0] == potential[0]->left) {
-//         //   curBest = potential;
-//         //   findNearestNeighborGenerateNext(query, potential[0]->right, potential[1], dfs);
-//         // } else {
-//         //   curBest = potential;
-//         //   findNearestNeighborGenerateNext(query, potential[0]->left, potential[1], dfs);
-//         // }
+//         curBest = potential;
+//         radius = curBestRadius(query, curBest[0]->point);
+//       }
 //
-//       } else {
-//         radius = curBestRadius(query, potential);
-//         if (radius) {
-//
-//         } else {
-//           dfs.pop_back();
-//         }
+//       if ((query[potential[1]] - potential[0]->point[potential[1]]) * (query[potential[1]] - potential[0]->point[potential[1]]) < radius){
+//         if (smallerDimVal(query, potential[0]->point, potential[1]))
+//           dfs = traverse(query, potential[0]->right, potential[1], dfs);
+//         else
+//           dfs = traverse(query, potential[0]->left, potential[1], dfs);
 //       }
 //     }
 //
 //     return curBest;
 // }
-
-// template <int Dim>
-// double KDTree<Dim>::curBestRadius(const Point<Dim>& target, const Point<Dim>& currentBest)
-// {
-//   double radius = 0;
-//   for (int i = 0; i < Dim; ++i){
-//     radius = radius + (currentBest[i] - target[i]) * (currentBest[i] - target[i]);
-//   }
-//   return radius;
-// }
 //
 // template <int Dim>
-// vector<KDTreeNode*> KDTree<Dim>::findNearestNeighborTraverse(Point<Dim> query, KDTreeNode* root, int splitDim, vector<Point<Dim>> dfs)
+// vector<tuple<KDTreeNode*, int>> KDTree<Dim>::traverse(Point<Dim> query, KDTreeNode* root, int splitDim, vector<tuple<KDTreeNode*, int>> dfs)
 // {
 //     /**
 //      * @todo Implement this function!
 //      */
 //     if (root == NULL) return dfs;
 //     if (root->left == NULL && root->right == NULL) {
-//       dfs.push_back(root);
+//       tuple<KDTreeNode*, int> node = make_tuple(root, splitDim)
+//       dfs.push_back(node);
 //       return dfs;
 //     }
 //     if (smallerDimVal(query, root->point, splitDim)) {
 //       if (root->left != NULL){
-//         dfs.push_back(root);
-//         return findNearestNeighborTraverse(query, root->left, (splitDim + 1) % Dim, dfs);
+//         tuple<KDTreeNode*, int> node = make_tuple(root, splitDim)
+//         dfs.push_back(node);
+//         return traverse(query, root->left, (splitDim + 1) % Dim, dfs);
 //       } else {
-//         dfs.push_back(root);
+//         tuple<KDTreeNode*, int> node = make_tuple(root, splitDim)
+//         dfs.push_back(node);
 //         return dfs;
 //       }
 //     }
 //     else {
 //       if (root->right != NULL){
-//         dfs.push_back(root);
-//         return findNearestNeighborTraverse(query, root->right, (splitDim + 1) % Dim, dfs);
+//         tuple<KDTreeNode*, int> node = make_tuple(root, splitDim)
+//         dfs.push_back(node);
+//         return traverse(query, root->right, (splitDim + 1) % Dim, dfs);
 //       } else {
-//         dfs.push_back(root);
+//         tuple<KDTreeNode*, int> node = make_tuple(root, splitDim)
+//         dfs.push_back(node);
 //         return dfs;
 //       }
 //     }

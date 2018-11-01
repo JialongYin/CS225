@@ -266,6 +266,9 @@ class KDTree
     KDTreeNode* KDTreeCopyHelper(KDTreeNode* root);
 
     void KDTreeDstHelper(KDTreeNode* root);
+
+    Point<Dim> findNearestNeighborHelper(Point<Dim> query, KDTreeNode* root, int splitDim) const;
+    double curBestRadius(const Point<Dim>& target, const Point<Dim>& currentBest) const;
 };
 
 #include "kdtree.hpp"
