@@ -8,11 +8,11 @@
  */
 
 #include "schashtable.h"
- 
+
 using hashes::hash;
 using std::list;
 using std::pair;
-  
+
 template <class K, class V>
 SCHashTable<K, V>::SCHashTable(size_t tsize)
 {
@@ -62,6 +62,11 @@ void SCHashTable<K, V>::insert(K const& key, V const& value)
      * @todo Implement this function.
      *
      */
+    unsigned int idx = hash(key, size);
+    table[idx].push_front(make_pair(key, value));
+    elems++;
+    if (shouldResize()) resizeTable();
+
 }
 
 template <class K, class V>
@@ -74,7 +79,14 @@ void SCHashTable<K, V>::remove(K const& key)
      * Please read the note in the lab spec about list iterators and the
      * erase() function on std::list!
      */
-    (void) key; // prevent warnings... When you implement this function, remove this line.
+     typename list<pair<K, V>>::iterator itrm;
+     unsigned int idx = hash(key, size);
+     for (it = table[idx].begin(); it != table[idx].end(); it++) {
+         if (it->first == key) itrm = it;
+     }
+     table[idx].erase(itrm);
+     elems--;
+    // (void) key; // prevent warnings... When you implement this function, remove this line.
 }
 
 template <class K, class V>
@@ -84,7 +96,12 @@ V SCHashTable<K, V>::find(K const& key) const
     /**
      * @todo: Implement this function.
      */
-
+    unsigned int idx = hash(key, size);
+    typename list<pair<K, V>>::iterator it;
+    for (it = table[idx].begin(); it != table[idx].end(); it++) {
+        if (it->first == key)
+            return it->second;
+    }
     return V();
 }
 
@@ -142,4 +159,15 @@ void SCHashTable<K, V>::resizeTable()
      *
      * @hint Use findPrime()!
      */
+     size_t newSize = findPrime(2 * size);
+     list<std::pair<K, V>>* newTable = new list<pair<K, V>>[newSize];
+     size_t idx;
+     for (size_t i = 0; i < size; i++) {
+       for (it = table[i].begin(); it != table[i].end(); it++) {
+           idx = hash(it->first,newSize);
+           newTable[idx].push_front(make_pair(it->first, it->second));
+       }
+     }
+     table = newTable;
+     size = newSize;
 }
