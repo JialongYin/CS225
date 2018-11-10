@@ -19,7 +19,10 @@ void helpTestHeapifyDown(const vector<V> & vals)
     heap<V> _heap;
     for(size_t i = 0; i < vals.size(); ++i)
         _heap.push(vals[i]);
-
+    // for (size_t i = 0; i < vals.size(); ++i) {
+    //     cout << vals[i] << " ";
+    // // }
+    // cout << "_heap" << _heap << endl;
     vector<V> sorted = vals;
     sort(sorted.begin(), sorted.end());
 
