@@ -14,6 +14,7 @@
 using std::string;
 using std::vector;
 using std::ifstream;
+using std::sort;
 
 /**
  * Constructs an AnagramDict from a filename with newline-separated
@@ -23,6 +24,32 @@ using std::ifstream;
 AnagramDict::AnagramDict(const string& filename)
 {
     /* Your code goes here! */
+    vector<string> words;
+    ifstream wordsFile(filename);
+    string word;
+    if (wordsFile.is_open()) {
+    /* Reads a line from `wordsFile` into `word` until the file ends. */
+      while (getline(wordsFile, word)) {
+        words.push_back(word);
+      }
+    }
+    for (size_t i = 0; i < words.size(); i++) {
+      vector<string> anagram;
+      for (size_t j = 0; j < words.size(); j++) {
+        string w1 = words[i];
+        string w2 = words[j];
+        sort(w1.begin(), w1.end());
+        sort(w2.begin(), w2.end());
+        if (words[i] != words[j] && (w1 == w2)) {
+          if (j < i) break;
+          anagram.push_back(words[j]);
+        }
+      }
+      if (!anagram.empty()) {
+        anagram.push_back(words[i]);
+        dict[words[i]] = anagram;
+      }
+    }
 }
 
 /**
@@ -32,6 +59,23 @@ AnagramDict::AnagramDict(const string& filename)
 AnagramDict::AnagramDict(const vector<string>& words)
 {
     /* Your code goes here! */
+    for (size_t i = 0; i < words.size(); i++) {
+      vector<string> anagram;
+      for (size_t j = 0; j < words.size(); j++) {
+        string w1 = words[i];
+        string w2 = words[j];
+        sort(w1.begin(), w1.end());
+        sort(w2.begin(), w2.end());
+        if (words[i] != words[j] && (w1 == w2)) {
+          if (j < i) break;
+          anagram.push_back(words[j]);
+        }
+      }
+      if (!anagram.empty()) {
+        anagram.push_back(words[i]);
+        dict[words[i]] = anagram;
+      }
+    }
 }
 
 /**
@@ -43,6 +87,15 @@ AnagramDict::AnagramDict(const vector<string>& words)
 vector<string> AnagramDict::get_anagrams(const string& word) const
 {
     /* Your code goes here! */
+    for( auto const& x : dict ){
+      string w1 = word;
+      string w2 = x.first;
+      sort(w1.begin(), w1.end());
+      sort(w2.begin(), w2.end());
+      if (w1 == w2) {
+        return x.second;
+      }
+    }
     return vector<string>();
 }
 
@@ -55,5 +108,9 @@ vector<string> AnagramDict::get_anagrams(const string& word) const
 vector<vector<string>> AnagramDict::get_all_anagrams() const
 {
     /* Your code goes here! */
-    return vector<vector<string>>();
+    vector<vector<string>> allAnagram;
+    for( auto const& x : dict ) {
+      allAnagram.push_back(x.second);
+    }
+    return allAnagram;
 }

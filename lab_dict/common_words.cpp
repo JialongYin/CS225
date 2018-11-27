@@ -48,12 +48,30 @@ void CommonWords::init_file_word_maps(const vector<string>& filenames)
         // file
         vector<string> words = file_to_vector(filenames[i]);
         /* Your code goes here! */
+        map<string, unsigned int> freq = {};
+        for (size_t j = 0; j < words.size(); j++) {
+          if (freq.find(words[j]) != freq.end()) {
+              freq[words[j]] = freq[words[j]] + 1;
+          } else {
+              freq[words[j]] = 1;
+          }
+        }
+        file_word_maps[i] = freq;
     }
 }
 
 void CommonWords::init_common()
 {
     /* Your code goes here! */
+    for (size_t i = 0; i < file_word_maps.size(); i++) {
+      for (auto const& x : file_word_maps[i]){
+        if (common.find(x.first) != common.end()) {
+          common[x.first] = common[x.first] + 1;
+        } else {
+          common[x.first] = 1;
+        }
+      }
+    }
 }
 
 /**
@@ -65,6 +83,20 @@ vector<string> CommonWords::get_common_words(unsigned int n) const
 {
     vector<string> out;
     /* Your code goes here! */
+    for (auto const& x : common)
+    {
+      // loop through file_word_maps
+      // see whether the word exists in each file
+      // if it is, then make sure its second count >= n
+      bool flag = true;
+      for (auto const& y : file_word_maps) {
+        if (y.find(x.first) != y.end()) {
+          if (y.find(x.first) -> second < n) flag = false;
+        }
+      }
+      if (flag)
+        out.push_back(x.first);
+    }
     return out;
 }
 
