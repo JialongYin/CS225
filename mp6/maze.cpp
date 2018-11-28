@@ -1,225 +1,261 @@
 /* Your code here! */
 #include "maze.h"
-#include <stdlib.h>
-#include <queue>
-#include "cs225/PNG.h"
-#include <tuple>
-#include <utility>
+#include <cmath>
+using std::vector;
 
-SquareMaze::SquareMaze (){
 
+SquareMaze::SquareMaze(){
+    vector<int> walls;
 }
 
-void SquareMaze::makeMaze (int width, int height){
+void SquareMaze::makeMaze(int width, int height){
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   width_ = width;
   height_ = height;
-  if (maze.size() != 0) maze.clear();
-  for (int i = 0; i < width*height; i++) {
-    maze.push_back(make_tuple(1,1));
+  maze_.clear();
+  maze_.resize(width * height);
+  dsets_.clear();
+  dsets_.addelements(width * height);
+
+
+  vector<int> walls;
+
+  for(int i = 0; i < width_ * height_ * 2; i++){
+    walls.push_back(i);
   }
-  DisjointSets noncycle;
-  noncycle.addelements(width*height);
-  srand(time(NULL));
-  while (noncycle.size(0) != width*height) {
-    int cell = (rand() % (width*height - 0 + 1));
-    int wall = (rand() % (1 - 0 + 1));
-      if (wall == 0 && get<0>(maze[cell]) == 1) {
-        int cellCnct = cell+width;
-        if ( cellCnct/width < height-1 && noncycle.find(cellCnct) != noncycle.find(cell) ) {
-          noncycle.setunion(cellCnct, cell);
-          get<0>(maze[cell]) = 0;
+
+  std::shuffle(walls.begin(), walls.end(), std::default_random_engine(seed));
+  unsigned k = 0;
+  int numSets = width_ * height_;
+  while(numSets > 1 && k < walls.size()){
+    int i = walls[k];
+    if(i % 2 == 0){
+        if(checkEdge((i/2) % width_, (i/2) / width_, 1) ||
+          dsets_.find(i/2) == dsets_.find(i/2 + width_)){
+            k++;
+            continue;
+          }
+        else{
+          setWall(i/2%width_, i/2/width_, 1, false);
+          dsets_.setunion(i/2, i/2 + width_);
+          numSets--;
+        }
+    }
+    else{
+        if(checkEdge((i/2) % width_,(i/2) / width_, 0)||
+            dsets_.find(i/2) == dsets_.find(i/2 + 1)) {
+          k++;
+          continue;
+        }
+        else{
+          setWall(i/2 % width_, i/2/width_, 0, false);
+          dsets_.setunion(i/2,i/2+1);
+          numSets--;
         }
       }
-      else if (wall == 1 && get<1>(maze[cell]) == 1) {
-        int cellCnct = cell+1;
-        if ( (cellCnct+1)%width != 0 && noncycle.find(cellCnct) != noncycle.find(cell) ) {
-          noncycle.setunion(cellCnct, cell);
-          get<1>(maze[cell]) = 0;
-        }
-      }
+
   }
 }
 
-bool SquareMaze::canTravel (int x, int y, int dir) const{
-  int idx = y*width_ + x;
-  if (dir == 0) {
-    if ((idx+1)%width_ != 0 && get<1>(maze[idx]) == 0)
-      return true;
+bool SquareMaze::canTravel(int x, int y, int dir) const{
+  if((x == 0 && dir == 2)||(y == 0 && dir == 3)){
     return false;
-  } else if (dir == 1) {
-    if (idx/width_ < height_-1 && get<0>(maze[idx]) == 0 )
-      return true;
-    return false;
-  } else if (dir == 2) {
-    if (idx%width_ != 0 && get<1>(maze[idx-1]) == 0)
-      return true;
-    return false;
-  } else if (dir == 3) {
-    if (idx/width_ > 0 && get<0>(maze[idx-width_]) == 0)
-      return true;
-    return false;
-  } else return true;
+  }
+
+  if(dir == 0) return !maze_[cood(x,y)].right;
+  else if(dir == 1) return !maze_[cood(x,y)].down;
+  else if(dir == 2) return !maze_[cood(x-1,y)].right;
+  else return !maze_[cood(x,y-1)].down;
 }
 
-void SquareMaze::setWall (int x, int y, int dir, bool exists){
-  int idx = y*width_ + x;
-  if (exists) {
-    if (dir == 0)
-      get<1>(maze[idx]) = 1;
-    else
-      get<0>(maze[idx]) = 1;
+void SquareMaze::setWall(int x, int y, int dir, bool exists){
+  if(dir == 0){maze_[cood(x,y)].right = exists;}
+  else if(dir == 1){maze_[cood(x,y)].down = exists;}
+  else if(dir == 2){maze_[cood(x-1,y)].right = exists;}
+  else if(dir == 3){maze_[cood(x,y-1)].down = exists;}
+}
+
+int SquareMaze::cood(int x, int y) const{
+  return y*width_ + x;
+}
+
+int SquareMaze::nextBlock(int x,int y,int dir){
+  if(dir == 0) return cood(x + 1,y);
+  else if(dir == 1) return cood(x, y+1);
+  else if(dir == 2) return cood(x - 1,y);
+  else return cood(x,y-1);
+}
+
+bool SquareMaze::checkEdge(int x, int y, int dir){
+  if((x == width_ - 1 && dir == 0) ||
+     (y == height_ - 1 && dir == 1)||
+     (x == 0 && dir == 2) ||
+     (y == 0 && dir == 3)){
+       return true;
+     }
+  else return false;
+}
+
+
+vector<int> SquareMaze::solveMaze(){
+  vector<int> ret = traverse(0,0,0,0);
+  ret.pop_back();
+  return ret;
+}
+
+vector<int> SquareMaze::traverse(int x, int y, int prev_x, int prev_y){
+  vector<int> maxStep{};
+  vector<int> temp{};
+  int dir;
+  bool reachedBottom = false;
+  if(y == height_ - 1){
+    reachedBottom = true;
+  }
+  for(int i = 0; i < 4; i++){
+    if(canTravel(x,y,i) && nextBlock(x,y,i) != cood(prev_x,prev_y)){
+      temp = traverse(nextBlock(x,y,i) % width_, nextBlock(x,y,i)/width_,x,y);
+      if(temp.size() == 0) continue;
+
+      if(temp.size() > maxStep.size() ||
+        (temp.size() == maxStep.size() && temp.back() < maxStep.back())){
+          maxStep = temp;
+          dir = i;
+        }
+    }
+  }
+
+  if(maxStep.size() != 0){
+      maxStep.insert(maxStep.begin(), dir);
+  } else if(maxStep.size() == 0 && reachedBottom){
+      maxStep.push_back(x);
   } else{
-    if (dir == 0)
-      get<1>(maze[idx]) = 0;
-    else
-      get<0>(maze[idx]) = 0;
+      return maxStep;
   }
+
+  return maxStep;
 }
 
-vector<int> SquareMaze::solveMaze (){
-  vector <tuple<size_t, vector<int>, int>> des_path;
-  for (int i = 0; i < width_; i++) {
-    int destination = (height_-1)*width_ + i;
-    queue <pair<int, vector<int>>> q;
-    q.push(make_pair(0, vector<int>()));
-    vector<bool> visited(false, width_*height_); //
+PNG* SquareMaze::drawMaze() const{
+  PNG* canvas = new PNG(width_ * 10 + 1,height_ * 10 + 1);
+  for(unsigned int y = 0; y < canvas->height(); y++){
+    HSLAPixel& temp = canvas->getPixel(0,y);
+    temp.l = 0;
+  }
+  for(unsigned int x = 10; x < canvas->width(); x++){
+    HSLAPixel& temp = canvas->getPixel(x,0);
+    temp.l = 0;
+  }
+  for(int x = 0; x < width_; x++){
+    for (int y = 0; y < height_; y++){
 
-    while (!q.empty()) {
-      int idx = q.front().first;
-      vector<int> dir = q.front().second;
-      q.pop();
-      if (!visited[idx]) {
-        if (idx == destination) {
-          cout << "in here "<<endl;
-          des_path.push_back(make_tuple(dir.size(), dir, destination));
-          break;
+      if(maze_[cood(x,y)].right){
+        for(int k = 0; k <= 10; k++){
+          HSLAPixel& temp = canvas->getPixel((x+1)*10,y*10+k);
+          temp.l = 0;
         }
-        visited[idx] = true;
-        int x = idx%width_;
-        int y = idx/width_;
-        if (canTravel(x, y, 0)) {
-          vector<int> temp0 = dir;
-          temp0.push_back(0);
-          q.push(make_pair(idx+1, temp0));
-        }
-        if (canTravel(x, y, 1)) {
-          vector<int> temp1 = dir;
-          temp1.push_back(1);
-          q.push(make_pair(idx+width_, temp1));
-        }
-        if (canTravel(x, y, 2)) {
-          vector<int> temp2 = dir;
-          temp2.push_back(2);
-          q.push(make_pair(idx-1, temp2));
-        }
-        if (canTravel(x, y, 3)) {
-          vector<int> temp3 = dir;
-          temp3.push_back(3);
-          q.push(make_pair(idx-width_, temp3));
-        }
-
       }
+
+      if(maze_[cood(x,y)].down){
+        for(int k = 0; k<= 10; k++){
+          HSLAPixel& temp = canvas->getPixel(x*10+k, (y+1)*10);
+          temp.l = 0;
+        }
+      }
+
     }
   }
-  sort(des_path.begin(), des_path.end());
-  cout << "len ="<< des_path.size()<<endl;
-  int len = get<0>(des_path.back());
-  cout << len << endl;
-  destination_ = get<2>(des_path.back());
-  return get<1>(des_path.back());
+  return canvas;
 }
 
-PNG *SquareMaze::drawMaze () const {
-  PNG *png = new PNG(width_*10 + 1, height_*10 + 1);
-  for (unsigned x = 0; x < png->width(); x++) {
-    for (unsigned y = 0; y < png->height(); y++) {
-      if ((y == 0 && !(x>=1 && x <=9)) || x == 0) {
-        HSLAPixel & pixel = png->getPixel(x, y);
-        pixel.l = 0;
-      }
+PNG* SquareMaze::drawMazeWithSolution(){
+  PNG* canvas = drawMaze();
+  vector<int> sol = solveMaze();
+  int next = 0;
+  int x = 5;
+  int y = 5;
+  HSLAPixel& temp = canvas->getPixel(x,y);
+  temp.s = 1; temp.l = 0.5;
+  for (auto iter = sol.begin(); iter != sol.end(); iter ++){
+    for(int i = 0; i < 10; i++){
+      if(*iter == 0){x++;}
+      else if(*iter == 1){y++;}
+      else if(*iter == 2){x--;}
+      else {y--;}
+      HSLAPixel& temp = canvas->getPixel(x,y);
+      temp.s = 1; temp.l = 0.5;
     }
+    next = nextBlock(next%width_, next / width_,(*iter));
   }
-  for (int i = 0; i < width_*height_; i++) {
-    if (get<1>(maze[i]) == 1) {
-      for (int k = 0; k < 10; k++) {
-        int x_coor = (i%width_ + 1)*10;
-        int y_coor = (i/width_)*10 + k;
-        HSLAPixel & p1 = png->getPixel(x_coor, y_coor);
-        p1.l = 0;
-      }
-    }
-    if (get<0>(maze[i]) == 1) {
-      for (int k = 0; k < 10; k++) {
-        int x_coor = (i%width_)*10 + k;
-        int y_coor = (i/width_ + 1)*10;
-        HSLAPixel & p2 = png->getPixel(x_coor, y_coor);
-        p2.l = 0;
-      }
-    }
+
+  for(int k = 1; k < 10; k++){
+    HSLAPixel& temp = canvas->getPixel((next%width_)*10+k, (next/width_+1)*10);
+    temp.l = 1;
   }
-  return png;
+  return canvas;
 }
 
-PNG *SquareMaze::drawMazeWithSolution () {
-  PNG *png = drawMaze();
-  vector<int> path = solveMaze();
-  reverse(path.begin(),path.end());
-  int x_coor = 5;
-  int y_coor = 5;
-  while (!path.empty()) {
-    int dir = path.back();
-    path.pop_back();
-    if (dir == 1) {
-      for (int k = 0; k < 11; k++) {
-        HSLAPixel & p1 = png->getPixel(x_coor, y_coor);
-        p1.h = 0.1;
-        p1.s = 0.5;
-        p1.l = 1;
-        if (k != 10)
-          y_coor = y_coor + 1;
-      }
+
+PNG* SquareMaze::drawMazeWithCreative(){
+  //PNG* canvas = drawMaze();
+  PNG* canvas = drawCreativeMaze();
+  vector<int> sol = solveMaze();
+  int next = 0;
+  int x = 5;
+  int y = 5;
+  HSLAPixel& temp = canvas->getPixel(x,y);
+  temp.s = 1; temp.l = 0.5;
+  for (auto iter = sol.begin(); iter != sol.end(); iter ++){
+    for(int i = 0; i < 10; i++){
+      if(*iter == 0){x++;}
+      else if(*iter == 1){y++;}
+      else if(*iter == 2){x--;}
+      else {y--;}
+      HSLAPixel& temp = canvas->getPixel(x,y);
+      temp.s = 1; temp.l = 0.5;
     }
-    if (dir == 0) {
-      for (int k = 0; k < 11; k++) {
-        HSLAPixel & p0 = png->getPixel(x_coor, y_coor);
-        p0.h = 0.1;
-        p0.s = 0.5;
-        p0.l = 1;
-        if (k != 10)
-          x_coor = x_coor + 1;
-      }
-    }
-    if (dir == 3) {
-      for (int k = 0; k < 11; k++) {
-        HSLAPixel & p3 = png->getPixel(x_coor, y_coor);
-        p3.h = 0.1;
-        p3.s = 0.5;
-        p3.l = 1;
-        if (k != 10)
-          y_coor = y_coor - 1;
-      }
-    }
-    if (dir == 2) {
-      for (int k = 0; k < 11; k++) {
-        HSLAPixel & p2 = png->getPixel(x_coor, y_coor);
-        p2.h = 0.1;
-        p2.s = 0.5;
-        p2.l = 1;
-        if (k != 10)
-          x_coor = x_coor - 1;
-      }
-    }
+    next = nextBlock(next%width_, next/width_, (*iter));
   }
 
-  for (int k = 1; k < 9; k++) {
-    int x_des = (destination_%width_)*10 + k;
-    int y_des = (destination_/width_ + 1)*10;
-    HSLAPixel & p_des = png->getPixel(x_des, y_des);
-    p_des.h = 1;
+  for(int k = 1; k < 10; k++){
+    HSLAPixel& temp = canvas->getPixel((next%width_)*10+k, (next/width_+1)*10);
+    temp.l = 1;
   }
-  return png;
+  return canvas;
 }
 
-PNG *SquareMaze::drawCreativeMaze(){
-  return NULL;
+
+
+PNG* SquareMaze::drawCreativeMaze() const{
+  PNG* canvas = new PNG(width_ * 10 + 1,height_ * 10 + 1);
+
+  for(unsigned int y = 0; y < canvas->height(); y++){
+    HSLAPixel& temp = canvas->getPixel(0,y);
+    temp.l = 0;
+  }
+
+  for(unsigned int x = 10; x < canvas->width(); x++){
+    HSLAPixel& temp = canvas->getPixel(x,0);
+    temp.l = 0;
+  }
+
+  for(int x = 0; x < width_; x++){
+    for (int y = 0; y < height_; y++){
+
+      if(maze_[cood(x,y)].right){
+        for(int k = 0; k <= 5; k++){
+          HSLAPixel& temp = canvas->getPixel((x+1)*10,y*10+k);
+          temp.l = 0;
+        }
+      }
+
+      if(maze_[cood(x,y)].down){
+        for(int k = 0; k<= 10; k++){
+          HSLAPixel& temp = canvas->getPixel(x*10+k, (y+1)*10);
+          temp.l = 0;
+        }
+      }
+
+    }
+  }
+  return canvas;
 }
