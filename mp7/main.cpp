@@ -14,13 +14,14 @@ int main() {
   std::cout << g << std::endl;
 
   // Modify the g.shortestPath call to find the shortest path to your story:
-  /*
-  std::list<std::string> path = g.shortestPath("waf-zoey", "waf-zoey-oak");
+
+  std::list<std::string> path = g.shortestPath("jialong2_Einstein", "jialong2_Einstein-oak_1");
   for (std::string key : path) {
     std::cout << key << " -> ";
   }
   std::cout << "[THE END]" << std::endl;
-  */
+  std::cout << "path.size()" << path.size() << std::endl;
+
 
   return 0;
 }
