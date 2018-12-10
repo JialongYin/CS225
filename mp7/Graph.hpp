@@ -48,12 +48,12 @@ V & Graph<V,E>::insertVertex(std::string key) {
 template <class V, class E>
 void Graph<V,E>::removeVertex(const std::string & key) {
   // TODO: Part 2
-  vertexMap.erase(key);
   list<edgeListIter> lst = adjList.at(key);
-  adjList.erase(key);
-  for (size_t i = 0; i < lst.size(); i++) {
-    edgeList.erase(lst[i]);
+  for (auto it = lst.begin(); it != lst.end(); it++) {
+    removeEdge((*(*it)).get().source(), (*(*it)).get().dest());
   }
+  vertexMap.erase(key);
+  adjList.erase(key);
 }
 
 
@@ -87,17 +87,38 @@ E & Graph<V,E>::insertEdge(const V & v1, const V & v2) {
 template <class V, class E>
 void Graph<V,E>::removeEdge(const std::string key1, const std::string key2) {
   // TODO: Part 2
-  E & e = *(new E(vertexMap.at(key1), vertexMap.at(key2)));
-  edgeListIter it = find(edgeList.begin(), edgeList.end(), e);
-  if (it != edgeList.end()) {
-    edgeList.erase(it);
-    list<edgeListIter> lst1 = adjList.at(key1);
-    list<edgeListIter> lst2 = adjList.at(key2);
-    lst1.erase(it);
-    lst2.erase(it);
-    adjList.at(key1) = lst1;
-    adjList.at(key2) = lst2;
+  // E & e = *(new E(vertexMap.at(key1), vertexMap.at(key2)));
+
+  list<edgeListIter> lst1 = adjList.at(key1);
+  list<edgeListIter> lst2 = adjList.at(key2);
+  for (auto it1 = lst1.begin(); it1 != lst1.end(); it1++) {
+    if ((*(*it1)).get().source() == vertexMap.at(key2) || (*(*it1)).get().dest() == vertexMap.at(key2))
+      lst1.erase(it1);
   }
+  // cout << "lst2 size before: " << lst2.size() << endl;
+  for (auto it2 = lst2.begin(); it2 != lst2.end(); it2++) {
+    if ((*(*it2)).get().source() == vertexMap.at(key1) || (*(*it2)).get().dest() == vertexMap.at(key1))
+      lst2.erase(it2);
+  }
+  // cout << "lst2 size after: " << lst2.size() << endl;
+  adjList.at(key1) = lst1;
+  adjList.at(key2) = lst2;
+
+
+  // std::list<std::reference_wrapper<E>> edges;
+  // list<edgeListIter> lst = adjList.at(key2);
+  // cout << "lst2 size again: " << lst.size() << endl;
+  // for (typename list<edgeListIter>::iterator itr = lst.begin(); itr != lst.end(); itr++) {
+  //   cout << "edge: " << (*(*itr)).get().source() << " " << (*(*itr)).get().dest()<< endl;
+  // }
+
+  // cout << "edgeList size before: " << edgeList.size() << endl;
+  for (auto it = edgeList.begin(); it != edgeList.end(); it++) {
+    if (( (*it).get().source() == vertexMap.at(key1) && (*it).get().dest() == vertexMap.at(key2) )
+        || ((*it).get().source() == vertexMap.at(key2) && (*it).get().dest() == vertexMap.at(key1)) )
+      edgeList.erase(it);
+  }
+  // cout << "edgeList size after: " << edgeList.size() << endl;
 }
 
 

@@ -11,7 +11,7 @@ Graph<Vertex, Edge> createTestGraph() {
         /  | _/           |
       a -- c -- e    f -- g
         \_   _/
-           d 
+           d
   */
 
   Graph<Vertex, Edge> g;
@@ -49,6 +49,15 @@ Graph<Vertex, Edge> createTestGraph() {
 
   // Additional edges on `h`: (none)
 
+  // g.insertVertex("i");
+  // g.insertEdge("e", "i");
+  // g.insertEdge("i", "a");
+  // g.removeEdge("a", "i");
+  // g.removeVertex("i");
+  //
+  // g.insertEdge("e", "h");
+  // g.removeEdge("e", "h");
+
   return g;
 }
 
@@ -58,7 +67,7 @@ TEST_CASE("Graph::size returns the vertex count", "[weight=1]") {
   Graph<Vertex, Edge> g;
 
   g.insertVertex("a");
-  g.insertVertex("b");  
+  g.insertVertex("b");
   REQUIRE( g.size() == 2 );
 
   g.insertVertex("c");
@@ -71,7 +80,7 @@ TEST_CASE("Graph::edges::size returns the edge count", "[weight=1]") {
   Graph<Vertex, Edge> g;
 
   g.insertVertex("a");
-  g.insertVertex("b");  
+  g.insertVertex("b");
   g.insertVertex("c");
   g.insertVertex("d");
   g.insertVertex("e");
@@ -115,5 +124,3 @@ TEST_CASE("Graph::isAdjacent is correct (opposite-order test)", "[weight=1]") {
   Graph<Vertex, Edge> g = createTestGraph();
   REQUIRE( g.isAdjacent("a", "d") == true );
 }
-
-
